@@ -11,4 +11,4 @@ https://incredible-pony-19d3e2.netlify.app
 
 ## `Screen`
 
-![](cart.gif)
+![](cart.mp4)
