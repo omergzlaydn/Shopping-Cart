@@ -10,23 +10,25 @@ let cart = [];
 let buttonsDOM = [];
 
 class Products {
-    async getProducts() {
-        try {
-            let result = await fetch("https://61afbc6c3e2aba0017c494ef.mockapi.io/products");
-            let data = await result.json();
-            let products = data;
-            return products;
-        } catch (error) {
-            console.log(error);
-        }
+  async getProducts() {
+    try {
+      let result = await fetch(
+        "https://64e5e6e209e64530d17f3947.mockapi.io/products"
+      );
+      let data = await result.json();
+      let products = data;
+      return products;
+    } catch {
+      console.log(err);
     }
+  }
 }
 
 class UI {
-    displayProducts(products) {
-        let result = "";
-        products.forEach(item => {
-            result += `
+  displayProducts(products) {
+    let result = "";
+    products.forEach((item) => {
+      result += `
             <div class="col-lg-4 col-md-6">
                 <div class="product">
                     <div class="product-image">
@@ -41,56 +43,57 @@ class UI {
                     </div>
                 </div>
             </div>
-            `});
-        productsDOM.innerHTML = result;
-    }
+            `;
+    });
+    productsDOM.innerHTML = result;
+  }
 
-    getBagButtons() {
-        const buttons = [...document.querySelectorAll(".btn-add-to-cart")];
-        buttonsDOM = buttons;
-        buttons.forEach(button => {
-            let id = button.dataset.id;
-            let inCart = cart.find(item => item.id === id);
-            if (inCart) {
-                button.setAttribute("disabled", "disabled");
-                button.style.opacity = ".3";
-            } else {
-                button.addEventListener("click", event => {
-                    event.target.disabled = true;
-                    event.target.style.opacity = ".3";
-                    //* get product from products
-                    let cartItem = { ...Storage.getProduct(id), amount: 1 };
-                    //* add procuct to the cart
-                    cart = [...cart, cartItem];
-                    //* save cart in local storage
-                    Storage.saveCart(cart);
-                    //* save cart values
-                    this.saveCartValues(cart);
-                    //* display cart item
-                    this.addCartItem(cartItem)
-                    //* show the cart
-                    this.showCart();
-                })
-            }
-        })
-    }
-
-    saveCartValues(cart) {
-        let tempTotal = 0;
-        let itemsTotal = 0;
-        cart.map(item => {
-            tempTotal += item.price * item.amount;
-            itemsTotal += item.amount;
+  getBagButtons() {
+    const buttons = [...document.querySelectorAll(".btn-add-to-cart")];
+    buttonsDOM = buttons;
+    buttons.forEach((button) => {
+      let id = button.dataset.id;
+      let inCart = cart.find((item) => item.id === id);
+      if (inCart) {
+        button.setAttribute("disabled", "disabled");
+        button.style.opacity = ".3";
+      } else {
+        button.addEventListener("click", (event) => {
+          event.target.disabled = true;
+          event.target.style.opacity = ".3";
+          //! get product from products
+          let cartItem = { ...Storage.getProduct(id), amount: 1 };
+          //! add procuct to the cart
+          cart = [...cart, cartItem];
+          //! save cart in local storage
+          Storage.saveCart(cart);
+          //! save cart values
+          this.saveCartValues(cart);
+          //! display cart item
+          this.addCartItem(cartItem);
+          //! show the cart
+          this.showCart();
         });
+      }
+    });
+  }
 
-        cartTotal.innerText = parseFloat(tempTotal.toFixed(2));
-        cartItems.innerText = itemsTotal;
-    }
+  saveCartValues(cart) {
+    let tempTotal = 0;
+    let itemsTotal = 0;
+    cart.map((item) => {
+      tempTotal += item.price * item.amount;
+      itemsTotal += item.amount;
+    });
 
-    addCartItem(item) {
-        const li = document.createElement("li");
-        li.classList.add("cart-list-item");
-        li.innerHTML = `
+    cartTotal.innerText = parseFloat(tempTotal.toFixed(2));
+    cartItems.innerText = itemsTotal;
+  }
+
+  addCartItem(item) {
+    const li = document.createElement("li");
+    li.classList.add("cart-list-item");
+    li.innerHTML = `
             <div class="cart-left">
                 <div class="cart-left-image">
                     <img src="${item.image}" alt="product" class="img-fluid" />
@@ -117,112 +120,116 @@ class UI {
                 </div>
             </div>
         `;
-        cartContent.appendChild(li);
-    }
+    cartContent.appendChild(li);
+  }
 
-    showCart() {
-        cartBtn.click();
-    }
+  showCart() {
+    cartBtn.click();
+  }
 
-    setupAPP() {
-        cart = Storage.getCart();
-        this.saveCartValues(cart);
-        this.populateCart(cart);
-    }
+  setupAPP() {
+    cart = Storage.getCart();
+    this.saveCartValues(cart);
+    this.populateCart(cart);
+  }
 
-    populateCart(cart) {
-        cart.forEach(item => this.addCartItem(item));
-    }
+  populateCart(cart) {
+    cart.forEach((item) => this.addCartItem(item));
+  }
 
-    cartLogic() {
-        clearCartBtn.addEventListener("click", () => {
-            this.clearCart();
-        })
+  cartLogic() {
+    clearCartBtn.addEventListener("click", () => {
+      this.clearCart();
+    });
 
-        cartContent.addEventListener("click", event => {
-            if (event.target.classList.contains("cart-remove-btn")) {
-                let removeItem = event.target;
-                let id = removeItem.dataset.id;
-                removeItem.parentElement.parentElement.parentElement.remove();
-                this.removeItem(id);
-            } else if (event.target.classList.contains("quantity-minus")) {
-                let lowerAmount = event.target;
-                let id = lowerAmount.dataset.id;
-                let tempItem = cart.find(item => item.id === id);
-                tempItem.amount = tempItem.amount - 1;
-                if (tempItem.amount > 0) {
-                    Storage.saveCart(cart);
-                    this.saveCartValues(cart);
-                    lowerAmount.nextElementSibling.innerText = tempItem.amount;
-                } else {
-                    lowerAmount.parentElement.parentElement.parentElement.remove();
-                    this.removeItem(id);
-                }
-            } else if (event.target.classList.contains("quantity-plus")) {
-                let addAmount = event.target;
-                let id = addAmount.dataset.id;
-                let tempItem = cart.find(item => item.id === id);
-                tempItem.amount = tempItem.amount + 1;
-                Storage.saveCart(cart);
-                this.saveCartValues(cart);
-                addAmount.previousElementSibling.innerText = tempItem.amount;
-            }
-        })
-    }
-
-
-    clearCart() {
-        let cartItems = cart.map(item => item.id);
-        cartItems.forEach(id => this.removeItem(id));
-        while (cartContent.children.length > 0) {
-            cartContent.removeChild(cartContent.children[0])
+    cartContent.addEventListener("click", (event) => {
+      if (event.target.classList.contains("cart-remove-btn")) {
+        let removeItem = event.target;
+        let id = removeItem.dataset.id;
+        removeItem.parentElement.parentElement.parentElement.remove();
+        this.removeItem(id);
+      } else if (event.target.classList.contains("quantity-minus")) {
+        let lowerAmount = event.target;
+        let id = lowerAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === id);
+        tempItem.amount = tempItem.amount - 1;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart);
+          this.saveCartValues(cart);
+          lowerAmount.nextElementSibling.innerText = tempItem.amount;
+        } else {
+          lowerAmount.parentElement.parentElement.parentElement.remove();
+          this.removeItem(id);
         }
-    }
-
-    removeItem(id) {
-        cart = cart.filter(item => item.id !== id);
-        this.saveCartValues(cart);
+      } else if (event.target.classList.contains("quantity-plus")) {
+        let addAmount = event.target;
+        let id = addAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === id);
+        tempItem.amount = tempItem.amount + 1;
         Storage.saveCart(cart);
-        let button = this.getSinleButton(id);
-        button.disabled = false;
-        button.style.opacity = "1";
-    }
+        this.saveCartValues(cart);
+        addAmount.previousElementSibling.innerText = tempItem.amount;
+      }
+    });
+  }
 
-    getSinleButton(id) {
-        return buttonsDOM.find(button => button.dataset.id === id);
+  clearCart() {
+    let cartItems = cart.map((item) => item.id);
+    cartItems.forEach((id) => this.removeItem(id));
+    while (cartContent.children.length > 0) {
+      cartContent.removeChild(cartContent.children[0]);
     }
+  }
+
+  removeItem(id) {
+    cart = cart.filter((item) => item.id !== id);
+    this.saveCartValues(cart);
+    Storage.saveCart(cart);
+    let button = this.getSinleButton(id);
+    button.disabled = false;
+    button.style.opacity = "1";
+  }
+
+  getSinleButton(id) {
+    return buttonsDOM.find((button) => button.dataset.id === id);
+  }
 }
 
 class Storage {
-    static saveProducts(products) {
-        localStorage.setItem("products", JSON.stringify(products));
-    }
+  static saveProducts(products) {
+    localStorage.setItem("products", JSON.stringify(products));
+  }
 
-    static getProduct(id) {
-        let products = JSON.parse(localStorage.getItem("products"));
-        return products.find(product => product.id === id);
-    }
+  static getProduct(id) {
+    let products = JSON.parse(localStorage.getItem("products"));
+    return products.find((product) => product.id === id);
+  }
 
-    static saveCart(cart) {
-        localStorage.setItem("cart", JSON.stringify(cart));
-    }
+  static saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }
 
-    static getCart() {
-        return localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
-    }
+  static getCart() {
+    return localStorage.getItem("cart")
+      ? JSON.parse(localStorage.getItem("cart"))
+      : [];
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const ui = new UI();
-    const products = new Products();
+  const ui = new UI();
+  const products = new Products();
 
-    ui.setupAPP();
+  ui.setupAPP();
 
-    products.getProducts().then(products => {
-        ui.displayProducts(products);
-        Storage.saveProducts(products);
-    }).then(() => {
-        ui.getBagButtons();
-        ui.cartLogic();
+  products
+    .getProducts()
+    .then((products) => {
+      ui.displayProducts(products);
+      Storage.saveProducts(products);
     })
+    .then(() => {
+      ui.getBagButtons();
+      ui.cartLogic();
+    });
 });
