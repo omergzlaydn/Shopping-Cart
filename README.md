@@ -1,4 +1,4 @@
-# Shopping Card JS
+# Shopping-Cart
 
 ## What i practice
 
@@ -7,8 +7,8 @@
 
 ## `URL`
 
-https://silver-treacle-38ad3e.netlify.app/
+https://incredible-pony-19d3e2.netlify.app
 
 ## `Screen`
 
-![](screen.gif)
+![](cart.gif)
